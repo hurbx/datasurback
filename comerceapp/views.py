@@ -71,6 +71,14 @@ class DataView(APIView):
         return Response('data saved successfully')
 
 
+class LastData(APIView):
+    def get(self, request):
+        DataView().get(request)
+        data = Data.data.last()
+        serializer = SerializerData(data)
+        return Response(serializer.data)
+
+
 class AllData(APIView):
     def get(self, request):
         DataView().get(request)
