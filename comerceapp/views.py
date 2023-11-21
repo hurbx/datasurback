@@ -74,7 +74,7 @@ class DataView(APIView):
 class LastData(APIView):
     def get(self, request):
         DataView().get(request)
-        data = Data.data.last()
+        data = Data.data.first()
         serializer = SerializerData(data)
         return Response(serializer.data)
 
