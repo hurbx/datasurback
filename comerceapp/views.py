@@ -53,7 +53,6 @@ class DataView(APIView):
         dolar_obs_p_tag = data.find_all('div', {'class': 'tooltip-wrap'})[2].find_all('p', {
             'class': 'basic-text fs-2 f-opensans-bold text-center c-blue-nb-2'})
 
-        # Verificar si se encuentra la etiqueta p antes de acceder a su contenido
 
         if dolar_obs_p_tag:
             dolar_obs_value = re.sub(r'[\r\n\t/()]', '', dolar_obs_p_tag[0].text.strip())
