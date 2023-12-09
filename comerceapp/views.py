@@ -36,29 +36,18 @@ class DataView(APIView):
         columns = df.columns
         # print(df)
         # print(df['Día'])
-        for index, row in df.iterrows():
-            day = row['Día']
-            for col in columns[1:]:
-                month = col
-                value_str = row[col]
-                value = value_str
-                data_instance = Data(day=day, month=month, value=value)
+        for month in columns[1:]:
+            values_for_month = [row[month] for _, row in df.iterrows()]
+            month_name = month[:3]
+            for index, value in enumerate(values_for_month, start=1):
+                data_instance = Data(day=index, month=month_name, value=value)
                 data_instance.save()
-
-        print(Data.data.filter(month='Enero'))
-
-
-
-        # uf_p_tag = data.find('div', {'class': 'tooltip-wrap'}).find_all('p', {
-        #     'class': 'basic-text fs-2 f-opensans-bold text-center c-blue-nb-2'})
-        #
-        #
-        # Data.data.create(uf=uf_value,
-        #                  utm=utm_value,
-        #                  dolar_obs=dolar_obs_value,
-        #                  euro=euro_value,
-        #                  date=date_value)
 
         return Response('data saved successfully')
 
 
+class DataList(APIView):
+    def get(self, request):
+        data = Data.data.all()
+        serializer = SerializerData(data, many=True)
+        return Response(serializer.data)

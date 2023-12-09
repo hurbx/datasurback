@@ -16,7 +16,6 @@ class Data(models.Model):
     class Meta:
         verbose_name = 'Data'
         verbose_name_plural = 'Datas'
-        ordering = ['day']
 
 
 
