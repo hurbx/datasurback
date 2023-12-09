@@ -1,3 +1,6 @@
+import json
+
+from django.http import JsonResponse
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -7,6 +10,9 @@ import pandas as pd
 
 from .Serializer.data_serializer import SerializerData
 from .models import Data
+from django.db.models import Max
+from django.db.models import Avg
+from django.db.models import Min
 
 import re
 
@@ -50,4 +56,44 @@ class DataList(APIView):
     def get(self, request):
         data = Data.data.all()
         serializer = SerializerData(data, many=True)
+        max_value = Data.data.aggregate(max_value=Max('value'))['max_value']
+        print(max_value)
         return Response(serializer.data)
+
+
+class MiscList(APIView):
+    def get(self, request):
+        # Filtra los objetos con valor diferente a ''
+        filtered_data = Data.data.exclude(value='')
+
+        # Calcula las agregaciones solo para los objetos filtrados
+        max_value = filtered_data.aggregate(max_value=Max('value'))['max_value']
+        average_value = filtered_data.aggregate(average_value=Avg('value'))['average_value']
+        min_value = filtered_data.aggregate(min_value=Min('value'))['min_value']
+
+        # Verifica si min_value es None y asigna '' en su lugar
+        min_value = '' if min_value is None else min_value
+
+        # Convertir a números si es posible
+        try:
+            max_value = float(max_value)
+        except (TypeError, ValueError):
+            pass
+
+        try:
+            average_value = float(average_value)
+        except (TypeError, ValueError):
+            pass
+
+        try:
+            min_value = float(min_value)
+        except (TypeError, ValueError):
+            pass
+
+        data = {
+            'max_value': max_value,
+            'average_value': average_value,
+            'min_value': min_value
+        }
+
+        return Response(data)
