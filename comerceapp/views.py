@@ -1,14 +1,8 @@
-import json
-
-from django.db.models.functions import ExtractMonth
-from django.http import JsonResponse
-from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 import requests
 from bs4 import BeautifulSoup as bs
 import pandas as pd
-
 from .Serializer.data_serializer import SerializerData
 from .models import Data
 from django.db.models import Max
@@ -95,40 +89,13 @@ class MiscList(APIView):
 
 class DataChart(APIView):
     def get(self, request):
-        # Obtén los meses distintos en los que hay datos
         months = Data.data.values_list('month', flat=True).distinct()
 
-        # Lista para almacenar los valores máximos por mes
         max_values_list = []
 
-        # Itera sobre los meses
         for month in months:
-            # Obtén el valor máximo para cada mes
             max_value_of_month = Data.data.filter(month=month).aggregate(max_value=Max('value'))['max_value']
-
-            # Agrega el valor máximo a la lista
             max_values_list.append(str(max_value_of_month) if max_value_of_month is not None else None)
 
         return Response(max_values_list)
 
-
-
-    # data = {
-    #     labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-    #     datasets: [
-    #         {
-    #             label: 'First Dataset',
-    #             data: [65, 59, 80, 81, 56, 55, 40],
-    #             fill: false,
-    #             borderColor: documentStyle.getPropertyValue('--blue-500'),
-    #             tension: 0.4
-    #         },
-    #         {
-    #             label: 'Second Dataset',
-    #             data: [28, 48, 40, 19, 86, 27, 90],
-    #             fill: false,
-    #             borderColor: documentStyle.getPropertyValue('--pink-500'),
-    #             tension: 0.4
-    #         }
-    #     ]
-    # };
