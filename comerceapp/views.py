@@ -1,5 +1,6 @@
 import json
 
+from django.db.models.functions import ExtractMonth
 from django.http import JsonResponse
 from django.shortcuts import render
 from rest_framework.views import APIView
@@ -63,18 +64,11 @@ class DataList(APIView):
 
 class MiscList(APIView):
     def get(self, request):
-        # Filtra los objetos con valor diferente a ''
         filtered_data = Data.data.exclude(value='')
-
-        # Calcula las agregaciones solo para los objetos filtrados
         max_value = filtered_data.aggregate(max_value=Max('value'))['max_value']
         average_value = filtered_data.aggregate(average_value=Avg('value'))['average_value']
         min_value = filtered_data.aggregate(min_value=Min('value'))['min_value']
-
-        # Verifica si min_value es None y asigna '' en su lugar
         min_value = '' if min_value is None else min_value
-
-        # Convertir a números si es posible
         try:
             max_value = float(max_value)
         except (TypeError, ValueError):
@@ -97,3 +91,44 @@ class MiscList(APIView):
         }
 
         return Response(data)
+
+
+class DataChart(APIView):
+    def get(self, request):
+        # Obtén los meses distintos en los que hay datos
+        months = Data.data.values_list('month', flat=True).distinct()
+
+        # Lista para almacenar los valores máximos por mes
+        max_values_list = []
+
+        # Itera sobre los meses
+        for month in months:
+            # Obtén el valor máximo para cada mes
+            max_value_of_month = Data.data.filter(month=month).aggregate(max_value=Max('value'))['max_value']
+
+            # Agrega el valor máximo a la lista
+            max_values_list.append(str(max_value_of_month) if max_value_of_month is not None else None)
+
+        return Response(max_values_list)
+
+
+
+    # data = {
+    #     labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+    #     datasets: [
+    #         {
+    #             label: 'First Dataset',
+    #             data: [65, 59, 80, 81, 56, 55, 40],
+    #             fill: false,
+    #             borderColor: documentStyle.getPropertyValue('--blue-500'),
+    #             tension: 0.4
+    #         },
+    #         {
+    #             label: 'Second Dataset',
+    #             data: [28, 48, 40, 19, 86, 27, 90],
+    #             fill: false,
+    #             borderColor: documentStyle.getPropertyValue('--pink-500'),
+    #             tension: 0.4
+    #         }
+    #     ]
+    # };
