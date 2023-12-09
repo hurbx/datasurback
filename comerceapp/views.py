@@ -33,13 +33,19 @@ class DataView(APIView):
             collected_data.append(row_data)
 
         df = pd.DataFrame(collected_data, columns=headers)
-        print(df)
+        columns = df.columns
+        # print(df)
+        # print(df['Día'])
+        for index, row in df.iterrows():
+            day = row['Día']
+            for col in columns[1:]:
+                month = col
+                value_str = row[col]
+                value = value_str
+                data_instance = Data(day=day, month=month, value=value)
+                data_instance.save()
 
-
-
-
-
-
+        print(Data.data.filter(month='Enero'))
 
 
 

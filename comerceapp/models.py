@@ -4,9 +4,9 @@ from django.db import models
 
 
 class Data(models.Model):
-    day = models.CharField(max_length=2)
-    value = models.CharField(max_length=10)
-    month = models.CharField(max_length=10)
+    day = models.IntegerField(default='')
+    value = models.CharField(max_length=10, default='')
+    month = models.CharField(max_length=10, default='')
 
     def __str__(self):
         return f'{self.day} - {self.value} - {self.month}'
@@ -16,6 +16,8 @@ class Data(models.Model):
     class Meta:
         verbose_name = 'Data'
         verbose_name_plural = 'Datas'
+        ordering = ['day']
+
 
 
 
