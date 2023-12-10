@@ -49,6 +49,7 @@ class DataView(APIView):
 
 class DataList(APIView):
     def get(self, request):
+        DataView().get(request)
         data = Data.data.all()
         serializer = SerializerData(data, many=True)
         max_value = Data.data.aggregate(max_value=Max('value'))['max_value']
